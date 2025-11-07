@@ -9,6 +9,18 @@ exports.getAllSections = async (req, res) => {
   }
 };
 
+exports.getSectionById = async (req, res) => {
+  try {
+    const section = await Section.findById(req.params.id);
+    if (!section) {
+      return res.status(404).json({ error: 'Section not found' });
+    }
+    res.json(section);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.createSection = async (req, res) => {
   try {
     const section = new Section(req.body);

@@ -4,13 +4,14 @@ const Faculty = require('../models/Faculty');
 const Mapping = require('../models/Mapping');
 const Timetable = require('../models/Timetable');
 const Log = require('../models/Log');
+const PeriodConfig = require('../models/PeriodConfig');
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const PERIODS_PER_DAY = 8;
 const BREAK_PERIOD = 3; // Period 3 is break (10:10-10:30)
 const LUNCH_PERIOD = 5; // Period 5 is lunch (12:40-1:40)
 
-const TIME_SLOTS = {
+let TIME_SLOTS = {
   1: { start: '08:00', end: '08:50' },
   2: { start: '09:00', end: '09:50' },
   3: { start: '10:10', end: '10:30' }, // Break
@@ -30,14 +31,28 @@ class SchedulerService {
 
   async generateTimetable(sectionId, adminId = null) {
     try {
+      // Load period time configuration if present
+      try {
+        const cfg = await PeriodConfig.findOne({ isActive: true });
+        if (cfg && cfg.periods && cfg.periods.size > 0) {
+          const nextSlots = {};
+          for (const [key, val] of cfg.periods) {
+            nextSlots[Number(key)] = { start: val.start, end: val.end };
+          }
+          TIME_SLOTS = { ...TIME_SLOTS, ...nextSlots };
+        }
+      } catch (_) {}
+
       // Fetch all required data
       const mappings = await Mapping.find({ sectionRef: sectionId })
         .populate('subjectRef')
         .populate('facultyRef')
         .populate('sectionRef');
 
+      // If no mappings found, use enhanced scheduler to generate demo
       if (mappings.length === 0) {
-        throw new Error('No mappings found for this section');
+        const enhancedScheduler = require('./enhancedSchedulerService');
+        return await enhancedScheduler.generateDemoTimetable(sectionId, adminId);
       }
 
       const section = mappings[0].sectionRef;
@@ -165,6 +180,7 @@ class SchedulerService {
       // Create timetable document
       const timetable = new Timetable({
         sectionRef: sectionId,
+        generatedBy: adminId || null,
         version: '1.0',
         generatedAt: new Date(),
         schedule,

@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
@@ -6,10 +5,20 @@ import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import RoomInventory from './pages/RoomInventory';
 import TimetableGenerator from './pages/TimetableGenerator';
+import TimetableManagement from './pages/TimetableManagement';
+import TimetableViewPage from './pages/TimetableViewPage';
+import Notifications from './pages/Notifications';
+import AdminTimetableEditor from './pages/AdminTimetableEditor';
 import FacultyPanel from './pages/FacultyPanel';
 import StudentPortal from './pages/StudentPortal';
 import LiveOccupancy from './pages/LiveOccupancy';
 import Analytics from './pages/Analytics';
+import AdminCampusSetup from './pages/AdminCampusSetup';
+import GeneratedTimetables from './pages/GeneratedTimetables';
+import TimetableView from './pages/TimetableView';
+import AdminSectionsDashboard from './pages/AdminSectionsDashboard';
+import SectionTimetableEditor from './pages/SectionTimetableEditor';
+import AdminManageAccounts from './pages/AdminManageAccounts';
 
 const PrivateRoute = ({ children, allowedRoles = [] }) => {
   const { user, loading } = useAuth();
@@ -42,7 +51,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
-      
+
       <Route
         path="/"
         element={
@@ -57,7 +66,7 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
-      
+
       <Route
         path="/admin/rooms"
         element={
@@ -66,7 +75,7 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
-      
+
       <Route
         path="/admin/timetable"
         element={
@@ -75,7 +84,43 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
-      
+
+      <Route
+        path="/admin/timetable-management"
+        element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <TimetableManagement />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/timetable/:id"
+        element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <TimetableViewPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/notifications"
+        element={
+          <PrivateRoute>
+            <Notifications />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/admin/timetable-editor"
+        element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <AdminTimetableEditor />
+          </PrivateRoute>
+        }
+      />
+
       <Route
         path="/faculty"
         element={
@@ -84,7 +129,7 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
-      
+
       <Route
         path="/student"
         element={
@@ -93,7 +138,7 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
-      
+
       <Route
         path="/occupancy"
         element={
@@ -102,12 +147,65 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
-      
+
       <Route
         path="/analytics"
         element={
           <PrivateRoute allowedRoles={['admin']}>
             <Analytics />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/admin/campus-setup"
+        element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <AdminCampusSetup />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/admin/generated-timetables"
+        element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <GeneratedTimetables />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/admin/generated-timetables/:id"
+        element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <TimetableView />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/admin/sections"
+        element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <AdminSectionsDashboard />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/admin/timetable-editor/:sectionId"
+        element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <SectionTimetableEditor />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/admin/accounts"
+        element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <AdminManageAccounts />
           </PrivateRoute>
         }
       />

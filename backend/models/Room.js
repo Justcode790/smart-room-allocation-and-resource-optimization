@@ -47,6 +47,39 @@ const roomSchema = new mongoose.Schema({
     enum: ['active', 'maintenance', 'offline'],
     default: 'active'
   },
+  occupancyStatus: {
+    type: String,
+    enum: ['idle', 'occupied', 'reserved'],
+    default: 'idle'
+  },
+  currentSession: {
+    facultyId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Faculty',
+      default: null
+    },
+    subjectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Subject',
+      default: null
+    },
+    startTime: {
+      type: Date,
+      default: null
+    },
+    endTime: {
+      type: Date,
+      default: null
+    },
+    day: {
+      type: String,
+      default: null
+    },
+    period: {
+      type: Number,
+      default: null
+    }
+  },
   allowTheoryClass: {
     type: Boolean,
     default: false

@@ -82,6 +82,28 @@ const TimetableGenerator = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!timetable) return;
+    
+    const statusText = timetable.isPublished ? 'published' : 'draft';
+    const confirmMessage = `Are you sure you want to delete this ${statusText} timetable for ${selectedSection?.name}?\n\n${
+      timetable.isPublished 
+        ? 'This will notify all affected students and faculty about the deletion.' 
+        : 'This action cannot be undone.'
+    }`;
+    
+    if (!window.confirm(confirmMessage)) return;
+    
+    try {
+      await timetableAPI.delete(timetable._id);
+      alert(`Timetable deleted successfully! ${timetable.isPublished ? 'Notifications sent to affected users.' : ''}`);
+      setTimetable(null);
+      setGenerationResult(null);
+    } catch (error) {
+      alert('Error deleting timetable: ' + (error.response?.data?.error || error.message));
+    }
+  };
+
   return (
     <Layout>
       <NotificationCard />
@@ -135,6 +157,14 @@ const TimetableGenerator = () => {
                   className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition shadow-lg transform hover:scale-105"
                 >
                   📢 Publish
+                </button>
+              )}
+              {timetable && (
+                <button
+                  onClick={handleDelete}
+                  className="bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-3 rounded-lg font-semibold hover:from-red-600 hover:to-red-700 transition shadow-lg transform hover:scale-105"
+                >
+                  🗑️ Delete
                 </button>
               )}
             </div>

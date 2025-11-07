@@ -23,17 +23,20 @@ const scheduleItemSchema = new mongoose.Schema({
   subjectRef: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Subject',
-    required: true
+    required: false,
+    default: null
   },
   facultyRef: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Faculty',
-    required: true
+    required: false,
+    default: null
   },
   roomRef: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Room',
-    required: true
+    required: false,
+    default: null
   },
   note: {
     type: String,
@@ -47,6 +50,11 @@ const timetableSchema = new mongoose.Schema({
     ref: 'Section',
     required: true
   },
+  generatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
   version: {
     type: String,
     default: '1.0'
@@ -57,6 +65,24 @@ const timetableSchema = new mongoose.Schema({
   },
   schedule: [scheduleItemSchema],
   isPublished: {
+    type: Boolean,
+    default: false
+  },
+  previousVersion: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Timetable',
+    default: null
+  },
+  revisionHistory: [{
+    version: String,
+    generatedAt: Date,
+    generatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    changes: String
+  }],
+  isDemo: {
     type: Boolean,
     default: false
   }

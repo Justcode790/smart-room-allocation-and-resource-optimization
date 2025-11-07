@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import NotificationBadge from './NotificationBadge';
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuth();
@@ -14,23 +15,36 @@ const Layout = ({ children }) => {
   };
 
   const getNavLinks = () => {
+    const commonLinks = [
+      { path: '/notifications', label: 'Notifications', icon: '🔔', color: 'from-yellow-500 to-yellow-600' }
+    ];
+
     if (user?.role === 'admin') {
       return [
         { path: '/', label: 'Dashboard', icon: '📊', color: 'from-blue-500 to-blue-600' },
+        { path: '/admin/campus-setup', label: 'Campus Setup', icon: '🏫', color: 'from-indigo-500 to-indigo-600' },
+        { path: '/admin/sections', label: 'Sections', icon: '📚', color: 'from-teal-500 to-teal-600' },
+        { path: '/admin/accounts', label: 'Manage Accounts', icon: '👥', color: 'from-emerald-500 to-emerald-600' },
         { path: '/admin/rooms', label: 'Rooms', icon: '🏫', color: 'from-green-500 to-green-600' },
         { path: '/admin/timetable', label: 'Timetable', icon: '📅', color: 'from-purple-500 to-purple-600' },
+        { path: '/admin/timetable-management', label: 'Manage Timetables', icon: '🗂️', color: 'from-indigo-500 to-indigo-600' },
+        { path: '/admin/timetable-editor', label: 'Timetable Editor', icon: '✏️', color: 'from-violet-500 to-violet-600' },
+        { path: '/admin/generated-timetables', label: 'Generated Timetables', icon: '📋', color: 'from-cyan-500 to-cyan-600' },
         { path: '/occupancy', label: 'Live Occupancy', icon: '👥', color: 'from-orange-500 to-orange-600' },
         { path: '/analytics', label: 'Analytics', icon: '📈', color: 'from-pink-500 to-pink-600' },
+        ...commonLinks,
       ];
     } else if (user?.role === 'faculty') {
       return [
         { path: '/faculty', label: 'My Schedule', icon: '📅', color: 'from-blue-500 to-blue-600' },
         { path: '/occupancy', label: 'Occupancy', icon: '👥', color: 'from-green-500 to-green-600' },
+        ...commonLinks,
       ];
     } else {
       return [
         { path: '/student', label: 'My Timetable', icon: '📅', color: 'from-blue-500 to-blue-600' },
         { path: '/occupancy', label: 'Occupancy', icon: '👥', color: 'from-green-500 to-green-600' },
+        ...commonLinks,
       ];
     }
   };
@@ -125,6 +139,15 @@ const Layout = ({ children }) => {
               <h2 className="text-lg font-semibold text-gray-800">
                 {getNavLinks().find(l => isActive(l.path))?.label || 'Dashboard'}
               </h2>
+            </div>
+            <div className="flex items-center space-x-4">
+              <NotificationBadge className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition" />
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>

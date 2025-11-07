@@ -125,7 +125,7 @@ const AdminDashboard = () => {
             <span className="mr-3">⚡</span>
             Quick Actions
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Link
               to="/admin/rooms"
               className="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg transform hover:scale-105"
@@ -151,6 +151,30 @@ const AdminDashboard = () => {
             </Link>
 
             <Link
+              to="/admin/timetable-management"
+              className="group relative overflow-hidden bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl p-6 text-white hover:from-indigo-600 hover:to-indigo-700 transition-all duration-300 shadow-lg transform hover:scale-105"
+            >
+              <div className="relative z-10">
+                <div className="text-4xl mb-3 transform group-hover:scale-110 transition duration-300">🗂️</div>
+                <div className="font-bold text-xl mb-2">Manage Timetables</div>
+                <div className="text-sm opacity-90">View, delete & manage all timetables</div>
+              </div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16 transform group-hover:scale-150 transition duration-500"></div>
+            </Link>
+
+            <Link
+              to="/admin/timetable-editor"
+              className="group relative overflow-hidden bg-gradient-to-r from-violet-500 to-violet-600 rounded-xl p-6 text-white hover:from-violet-600 hover:to-violet-700 transition-all duration-300 shadow-lg transform hover:scale-105"
+            >
+              <div className="relative z-10">
+                <div className="text-4xl mb-3 transform group-hover:scale-110 transition duration-300">✏️</div>
+                <div className="font-bold text-xl mb-2">Edit Timetable</div>
+                <div className="text-sm opacity-90">Manual timetable editing</div>
+              </div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16 transform group-hover:scale-150 transition duration-500"></div>
+            </Link>
+
+            <Link
               to="/analytics"
               className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg transform hover:scale-105"
             >
@@ -158,6 +182,18 @@ const AdminDashboard = () => {
                 <div className="text-4xl mb-3 transform group-hover:scale-110 transition duration-300">📈</div>
                 <div className="font-bold text-xl mb-2">View Analytics</div>
                 <div className="text-sm opacity-90">Room utilization insights</div>
+              </div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16 transform group-hover:scale-150 transition duration-500"></div>
+            </Link>
+
+            <Link
+              to="/admin/accounts"
+              className="group relative overflow-hidden bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl p-6 text-white hover:from-teal-600 hover:to-teal-700 transition-all duration-300 shadow-lg transform hover:scale-105"
+            >
+              <div className="relative z-10">
+                <div className="text-4xl mb-3 transform group-hover:scale-110 transition duration-300">👥</div>
+                <div className="font-bold text-xl mb-2">Manage Accounts</div>
+                <div className="text-sm opacity-90">Create student & faculty accounts</div>
               </div>
               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16 transform group-hover:scale-150 transition duration-500"></div>
             </Link>

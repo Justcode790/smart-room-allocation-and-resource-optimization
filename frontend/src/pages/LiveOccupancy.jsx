@@ -19,13 +19,29 @@ const LiveOccupancy = () => {
 
   useEffect(() => {
     if (socket) {
-      socket.on('occupancy:update', (data) => {
+      const onOcc = (data) => {
         setOccupancies(prev => ({
           ...prev,
           [data.roomId]: data.count
         }));
-      });
-      return () => socket.off('occupancy:update');
+      };
+      const onRoomUpdate = async (payload) => {
+        // Refresh room list on status change (occupied/idle)
+        try {
+          const res = await roomAPI.getAll();
+          setRooms(res.data);
+        } catch (e) {}
+      };
+      socket.on('occupancy:update', onOcc);
+      socket.on('room:update', onRoomUpdate);
+      socket.on('room:session-started', onRoomUpdate);
+      socket.on('room:session-ended', onRoomUpdate);
+      return () => {
+        socket.off('occupancy:update', onOcc);
+        socket.off('room:update', onRoomUpdate);
+        socket.off('room:session-started', onRoomUpdate);
+        socket.off('room:session-ended', onRoomUpdate);
+      };
     }
   }, [socket]);
 
