@@ -159,8 +159,32 @@ exports.deleteMultipleNotifications = async (req, res) => {
     const { notificationIds } = req.body;
     const userId = req.user._id;
 
-    if (!Array.isArray(notificationIds) || notificationIds.length === 0) {
-      return res.status(400).json({ error: 'Invalid notification IDs' });
+    console.log('[Delete Multiple] Request body:', req.body);
+    console.log('[Delete Multiple] Notification IDs:', notificationIds);
+    console.log('[Delete Multiple] User ID:', userId);
+
+    if (!notificationIds) {
+      return res.status(400).json({ error: 'notificationIds is required in request body' });
+    }
+
+    if (!Array.isArray(notificationIds)) {
+      return res.status(400).json({ error: 'notificationIds must be an array' });
+    }
+
+    if (notificationIds.length === 0) {
+      return res.status(400).json({ error: 'notificationIds array cannot be empty' });
+    }
+
+    // Validate that all IDs are valid ObjectIds
+    const mongoose = require('mongoose');
+    const invalidIds = notificationIds.filter(id => !mongoose.Types.ObjectId.isValid(id));
+    
+    if (invalidIds.length > 0) {
+      console.log('[Delete Multiple] Invalid IDs found:', invalidIds);
+      return res.status(400).json({ 
+        error: 'Invalid notification IDs',
+        invalidIds: invalidIds
+      });
     }
 
     const result = await Notification.deleteMany({
@@ -168,14 +192,18 @@ exports.deleteMultipleNotifications = async (req, res) => {
       userId
     });
     
+    console.log('[Delete Multiple] Delete result:', result);
+    
     res.json({ 
       message: `${result.deletedCount} notifications deleted`,
       deletedCount: result.deletedCount
     });
   } catch (error) {
-    console.error('Error deleting multiple notifications:', error);
+    console.error('[Delete Multiple] Error deleting multiple notifications:', error);
+    console.error('[Delete Multiple] Error stack:', error.stack);
     res.status(500).json({ 
-      error: error.message 
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };
@@ -185,19 +213,25 @@ exports.deleteAllRead = async (req, res) => {
   try {
     const userId = req.user._id;
 
+    console.log('[Delete All Read] User ID:', userId);
+
     const result = await Notification.deleteMany({
       userId,
       isRead: true
     });
+    
+    console.log('[Delete All Read] Delete result:', result);
     
     res.json({ 
       message: `${result.deletedCount} read notifications deleted`,
       deletedCount: result.deletedCount
     });
   } catch (error) {
-    console.error('Error deleting read notifications:', error);
+    console.error('[Delete All Read] Error deleting read notifications:', error);
+    console.error('[Delete All Read] Error stack:', error.stack);
     res.status(500).json({ 
-      error: error.message 
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };

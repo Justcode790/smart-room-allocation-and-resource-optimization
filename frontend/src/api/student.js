@@ -1,6 +1,9 @@
 import api from './axios';
 
 export const studentAPI = {
+  // Get all students (Admin only)
+  getAll: () => api.get('/students'),
+  
   // Get student dashboard data
   getDashboard: () => api.get('/students/dashboard'),
   

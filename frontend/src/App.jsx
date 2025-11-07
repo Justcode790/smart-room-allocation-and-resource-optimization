@@ -18,7 +18,6 @@ import GeneratedTimetables from './pages/GeneratedTimetables';
 import TimetableView from './pages/TimetableView';
 import AdminSectionsDashboard from './pages/AdminSectionsDashboard';
 import SectionTimetableEditor from './pages/SectionTimetableEditor';
-import AdminManageAccounts from './pages/AdminManageAccounts';
 
 const PrivateRoute = ({ children, allowedRoles = [] }) => {
   const { user, loading } = useAuth();
@@ -197,15 +196,6 @@ function AppRoutes() {
         element={
           <PrivateRoute allowedRoles={['admin']}>
             <SectionTimetableEditor />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/admin/accounts"
-        element={
-          <PrivateRoute allowedRoles={['admin']}>
-            <AdminManageAccounts />
           </PrivateRoute>
         }
       />

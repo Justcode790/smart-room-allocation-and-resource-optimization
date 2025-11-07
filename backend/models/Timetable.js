@@ -41,6 +41,26 @@ const scheduleItemSchema = new mongoose.Schema({
   note: {
     type: String,
     default: ''
+  },
+  // Conflict resolution fields
+  isAffected: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+  conflictId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Conflict'
+  },
+  originalRoomId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Room'
+  },
+  affectedReason: String,
+  affectedAt: Date,
+  requiresManualAssignment: {
+    type: Boolean,
+    default: false
   }
 }, { _id: false });
 
@@ -89,6 +109,12 @@ const timetableSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+// Indexes for conflict detection and performance
+timetableSchema.index({ 'schedule.roomRef': 1, 'schedule.day': 1, 'schedule.period': 1 });
+timetableSchema.index({ 'schedule.isAffected': 1, 'schedule.conflictId': 1 });
+timetableSchema.index({ 'schedule.requiresManualAssignment': 1 });
+timetableSchema.index({ sectionRef: 1, isPublished: 1 });
 
 module.exports = mongoose.model('Timetable', timetableSchema);
 

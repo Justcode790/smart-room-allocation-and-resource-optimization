@@ -1,19 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { roomAPI } from '../api/room';
 import { sectionAPI } from '../api/section';
 import { timetableAPI } from '../api/timetable';
 import { analyticsAPI } from '../api/analytics';
+import { facultyAPI } from '../api/faculty';
+import { studentAPI } from '../api/student';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
     rooms: 0,
     sections: 0,
     timetables: 0,
-    utilization: 0
+    utilization: 0,
+    faculty: 0,
+    students: 0,
+    publishedTimetables: 0
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchStats();
@@ -21,25 +27,55 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const [roomsRes, sectionsRes, timetablesRes, analyticsRes] = await Promise.all([
-        roomAPI.getAll(),
-        sectionAPI.getAll(),
-        timetableAPI.getAll(),
-        analyticsAPI.getAnalytics()
+      setError(null);
+      console.log('📊 Fetching dashboard stats...');
+
+      const [roomsRes, sectionsRes, timetablesRes, analyticsRes, facultyRes, studentsRes] = await Promise.all([
+        roomAPI.getAll().catch(err => { console.error('Rooms API error:', err); return { data: [] }; }),
+        sectionAPI.getAll().catch(err => { console.error('Sections API error:', err); return { data: [] }; }),
+        timetableAPI.getAll().catch(err => { console.error('Timetables API error:', err); return { data: [] }; }),
+        analyticsAPI.getAnalytics().catch(err => { console.error('Analytics API error:', err); return { data: { roomStats: {} } }; }),
+        facultyAPI.getAll().catch(err => { console.error('Faculty API error:', err); return { data: [] }; }),
+        studentAPI.getAll().catch(err => { console.error('Students API error:', err); return { data: [] }; })
       ]);
 
-      const avgUtilization = analyticsRes.data.suggestions?.length > 0
-        ? Object.values(analyticsRes.data.roomStats || {}).reduce((sum, stat) => sum + stat.utilization, 0) / Object.keys(analyticsRes.data.roomStats || {}).length
+      console.log('✅ Rooms:', roomsRes.data.length);
+      console.log('✅ Sections:', sectionsRes.data.length);
+      console.log('✅ Timetables:', timetablesRes.data.length);
+      console.log('✅ Faculty:', facultyRes.data.length);
+      console.log('✅ Students:', studentsRes.data.length);
+
+      // Calculate average utilization
+      const roomStats = analyticsRes.data.roomStats || {};
+      const roomStatsValues = Object.values(roomStats);
+      const avgUtilization = roomStatsValues.length > 0
+        ? roomStatsValues.reduce((sum, stat) => sum + (stat.utilization || 0), 0) / roomStatsValues.length
         : 0;
 
+      // Count published timetables
+      const publishedCount = timetablesRes.data.filter(t => t.isPublished).length;
+
       setStats({
+        rooms: roomsRes.data.length || 0,
+        sections: sectionsRes.data.length || 0,
+        timetables: timetablesRes.data.length || 0,
+        utilization: avgUtilization.toFixed(1),
+        faculty: facultyRes.data.length || 0,
+        students: studentsRes.data.length || 0,
+        publishedTimetables: publishedCount || 0
+      });
+
+      console.log('📊 Dashboard stats updated:', {
         rooms: roomsRes.data.length,
         sections: sectionsRes.data.length,
         timetables: timetablesRes.data.length,
+        faculty: facultyRes.data.length,
+        students: studentsRes.data.length,
         utilization: avgUtilization.toFixed(1)
       });
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error('❌ Error fetching stats:', error);
+      setError('Failed to load dashboard data. Please try refreshing the page.');
     } finally {
       setLoading(false);
     }
@@ -49,7 +85,10 @@ const AdminDashboard = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading dashboard data...</p>
+          </div>
         </div>
       </Layout>
     );
@@ -57,11 +96,16 @@ const AdminDashboard = () => {
 
   return (
     <Layout>
-      <div className="space-y-1">
+      <div className="space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-xl p-8 text-white">
           <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
           <p className="text-blue-100">Welcome back! Manage your campus resources efficiently.</p>
+          {error && (
+            <div className="mt-4 bg-red-500 bg-opacity-20 border border-red-300 rounded-lg p-3">
+              <p className="text-sm">⚠️ {error}</p>
+            </div>
+          )}
         </div>
 
         {/* Stats Cards */}
@@ -116,6 +160,68 @@ const AdminDashboard = () => {
             </div>
             <p className="text-orange-100 text-sm font-medium mb-1">Avg Utilization</p>
             <p className="text-4xl font-bold">{stats.utilization}%</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-5xl opacity-80">👨‍🏫</div>
+              <div className="bg-white bg-opacity-20 rounded-full p-2">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-teal-100 text-sm font-medium mb-1">Faculty Members</p>
+            <p className="text-4xl font-bold">{stats.faculty}</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl shadow-xl p-6 text-white transform hover:scale-105 transition duration-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-5xl opacity-80">👨‍🎓</div>
+              <div className="bg-white bg-opacity-20 rounded-full p-2">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-pink-100 text-sm font-medium mb-1">Students</p>
+            <p className="text-4xl font-bold">{stats.students}</p>
+          </div>
+        </div>
+
+        {/* Additional Stats Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-blue-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium mb-1">Published Timetables</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.publishedTimetables}</p>
+                <p className="text-xs text-gray-500 mt-1">out of {stats.timetables} total</p>
+              </div>
+              <div className="text-4xl">✅</div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-green-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium mb-1">Active Rooms</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.rooms}</p>
+                <p className="text-xs text-gray-500 mt-1">available for scheduling</p>
+              </div>
+              <div className="text-4xl">🏫</div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-purple-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm font-medium mb-1">Room Utilization</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.utilization}%</p>
+                <p className="text-xs text-gray-500 mt-1">average across all rooms</p>
+              </div>
+              <div className="text-4xl">📊</div>
+            </div>
           </div>
         </div>
 
@@ -182,18 +288,6 @@ const AdminDashboard = () => {
                 <div className="text-4xl mb-3 transform group-hover:scale-110 transition duration-300">📈</div>
                 <div className="font-bold text-xl mb-2">View Analytics</div>
                 <div className="text-sm opacity-90">Room utilization insights</div>
-              </div>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16 transform group-hover:scale-150 transition duration-500"></div>
-            </Link>
-
-            <Link
-              to="/admin/accounts"
-              className="group relative overflow-hidden bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl p-6 text-white hover:from-teal-600 hover:to-teal-700 transition-all duration-300 shadow-lg transform hover:scale-105"
-            >
-              <div className="relative z-10">
-                <div className="text-4xl mb-3 transform group-hover:scale-110 transition duration-300">👥</div>
-                <div className="font-bold text-xl mb-2">Manage Accounts</div>
-                <div className="text-sm opacity-90">Create student & faculty accounts</div>
               </div>
               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16 transform group-hover:scale-150 transition duration-500"></div>
             </Link>

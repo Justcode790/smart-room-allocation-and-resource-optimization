@@ -24,7 +24,6 @@ const Layout = ({ children }) => {
         { path: '/', label: 'Dashboard', icon: '📊', color: 'from-blue-500 to-blue-600' },
         { path: '/admin/campus-setup', label: 'Campus Setup', icon: '🏫', color: 'from-indigo-500 to-indigo-600' },
         { path: '/admin/sections', label: 'Sections', icon: '📚', color: 'from-teal-500 to-teal-600' },
-        { path: '/admin/accounts', label: 'Manage Accounts', icon: '👥', color: 'from-emerald-500 to-emerald-600' },
         { path: '/admin/rooms', label: 'Rooms', icon: '🏫', color: 'from-green-500 to-green-600' },
         { path: '/admin/timetable', label: 'Timetable', icon: '📅', color: 'from-purple-500 to-purple-600' },
         { path: '/admin/timetable-management', label: 'Manage Timetables', icon: '🗂️', color: 'from-indigo-500 to-indigo-600' },

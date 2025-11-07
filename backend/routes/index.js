@@ -16,7 +16,7 @@ const mappingRoutes = require('./mappingRoutes');
 const occupancyRoutes = require('./occupancyRoutes');
 const blockRoutes = require('./blockRoutes');
 const notificationRoutes = require('./notificationRoutes');
-const adminRoutes = require('./adminRoutes');
+const conflictRoutes = require('./conflictRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/rooms', roomRoutes);
@@ -34,7 +34,7 @@ router.use('/mappings', mappingRoutes);
 router.use('/occupancy', occupancyRoutes);
 router.use('/blocks', blockRoutes);
 router.use('/notifications', notificationRoutes);
-router.use('/admin', adminRoutes);
+router.use('/conflicts', conflictRoutes);
 
 module.exports = router;
 
